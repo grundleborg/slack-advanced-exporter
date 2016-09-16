@@ -69,7 +69,6 @@ class SlackSession:
         # Set up the team URL and requests session.
         self.teamUrl = "https://{}/".format(team)
         self.session = requests.Session()
-        self.session.headers.update({"User-Agent": USER_AGENT})
 
         # Get the signin form.
         r = self.session.get(self.teamUrl)
