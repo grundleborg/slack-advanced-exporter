@@ -41,8 +41,7 @@ Usage
 
 First, run a full export of your Slack team, and have the produced zip file handy.
 
-Interactive Mode
-++++++++++++++++
+### Interactive Mode
 
 The simplest way to use this tool is in interactive mode, where you will be prompted to go through
 the process entirely.
@@ -59,8 +58,7 @@ as follows:
 
     ./export.py -c COOKIE_FILE -t yourteam.slack.com -i
 
-Non-Interactive Mode
-++++++++++++++++++++
+### Non-Interactive Mode
 
 If you don't want to use interactive mode, you will need to provide a Slack session cookie
 as above. You can then run commands using flags to ```export.py```. For example, to download all
