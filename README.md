@@ -18,14 +18,6 @@ This tool can supplement an official Slack team export by adding the following t
 
 * File Uploads
 
-Under Development
------------------
-
-Exporting of the following items from Slack is still under development:
-
-* Private group messages (only the ones you are a member of).
-* Private messages (only those you are a party to).
-
 Installation
 ------------
 
@@ -70,10 +62,30 @@ For all available command line flags, run:
 
     ./export.py --help
 
+
+### Exporting The Results
+
+If you want to create a new zip archive with both the original Slack export contents, and the files
+downloaded by Option 3 / the --download-attachments flag, then you can, in interactive mode, select
+option 4, or in non-interactive mode, pass the flag:
+
+    -o export_with_advanced_files.zip
+
+This will create a new zip file with all the stuff this exporter has downloaded as well as the
+contents of the original export zip archive you got directly from Slack.
+
 Problems
 --------
 
 If you encounter a bug in this tool, please file a bug report on its Github issue tracker.
+
+Development Plans
+-----------------
+
+Exporting of the following items from Slack is still to be developed:
+
+* Private group messages (only the ones you are a member of).
+* Private messages (only those you are a party to).
 
 Contributing
 ------------
