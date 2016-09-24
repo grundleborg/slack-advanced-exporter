@@ -31,7 +31,7 @@ Installation
 
     git clone https://github.com/grundleborg/slack-advanced-exporter.git
     cd slack-advanced-exporter
-    pip install requirements.txt
+    pip install -r requirements.txt
 
 (You might like to use a Python virtualenvironment so you don't need to install the tool's
 requirements system wide).
