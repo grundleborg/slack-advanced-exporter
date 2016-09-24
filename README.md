@@ -21,12 +21,16 @@ This tool can supplement an official Slack team export by adding the following t
 Installation
 ------------
 
+The slack-advanced-exporter depends on Python 3 to run, and has only been tested on Linux systems at
+this stage (although it will almost certainly run fine on MacOS too, but I'm not sure at all about
+whether it will work as is on Windows).
+
     git clone https://github.com/grundleborg/slack-advanced-exporter.git
     cd slack-advanced-exporter
     pip install -r requirements.txt
 
-(You might like to use a Python virtualenvironment so you don't need to install the tool's
-requirements system wide).
+You might like to use a Python virtualenvironment so you don't need to install the tool's
+requirements system wide.
 
 Usage
 -----
@@ -61,7 +65,6 @@ file uploads to go with a team export, use the following command line:
 For all available command line flags, run:
 
     ./export.py --help
-
 
 ### Exporting The Results
 
