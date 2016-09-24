@@ -203,6 +203,7 @@ class Application:
         parser.add_argument("-c", "--cookie", help="Path to a file containing the Slack cookies.", type=str)
         parser.add_argument("-t", "--team", help="The Slack team URL in the form: team.slack.com", type=str)
         parser.add_argument("-e", "--export-file", help="The path to the Slack export file (in .zip format).", type=str)
+        parser.add_argument("-o", "--output-file", help="The path to the zip file this script should produce containing the original Slack export contents and any additional data exported by this script.", type=str)
         parser.add_argument("--download-attachments", help="Download all attachments for the accompanying export file.", action="store_true")
         return parser.parse_args()
 
@@ -255,7 +256,8 @@ class Application:
             print(" 1. Export my direct message history.")
             print(" 2. Export my private groups.")
             print(" 3. Download attachments to go with an existing Slack export.")
-            print(" 4. Exit Slack Advanced Exporter.")
+            print(" 4. Save the original export and the data exported by this script to a file.")
+            print(" 5. Exit Slack Advanced Exporter.")
             print("")
             choice = input("Your Choice: ")
 
@@ -277,6 +279,13 @@ class Application:
 
             elif choice == "4":
                 print("")
+                output_file = input("Path to the new export zip file [output.zip]: ")
+                if output_file == "":
+                    output_file = "output.zip"
+                self.save_output(output_file)
+
+            elif choice == "5":
+                print("")
                 print("Exiting Slack Advanced Exporter.")
                 break
 
@@ -294,6 +303,20 @@ class Application:
 
         print("Extracting Attachments Complete")
 
+    def save_output(self, output_file):
+        print("")
+        print("Exporting original archive plus extra exported data to {}.".format(output_file))
+        # Copy the files downloaded to the export directory.
+        if os.path.exists("export/__uploads"):
+            shutil.rmtree("export/__uploads")
+        shutil.copytree("files", "export/__uploads")
+        zipf = zipfile.ZipFile(output_file, 'w', zipfile.ZIP_DEFLATED)
+        for root, dirs, files in os.walk("export"):
+            for f in files:
+                filePath = os.path.join(root, f)
+                inZipPath = filePath.replace("export", "", 1).lstrip("\\/")
+                zipf.write(filePath, inZipPath)
+        zipf.close()
 
 if __name__ == "__main__":
     app = Application()
@@ -311,5 +334,8 @@ if __name__ == "__main__":
         else:
             print("Unrecognised command combinations. Please see included README.md for how to use")
             print("this script.")
+
+        if args.output_file is not None:
+            app.save_output(args.output_file)
 
 
