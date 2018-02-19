@@ -9,6 +9,7 @@ Current Features
 
 This tool can supplement an official Slack team export by adding the following to it:
 
+* Users' e-mail addresses
 * File Uploads
 
 Installation
@@ -21,6 +22,17 @@ Usage
 -----
 
 First, run a full export of your Slack team, and have the produced zip file handy.
+
+Due to `archive/zip` limitations, these actions cannot modify archive in place.
+It's preferable to fetch e-mails first to avoid copying large attachments around.
+
+### Add users' e-mails to your export.
+To fetch all users' e-mail addresses and add them to the archive,
+user this command:
+
+    ./slack-advanced-exporter --input-archive your-slack-team-export.zip --output-archive export-with-emails.zip fetch-emails --api-token xoxp-123...
+
+You'll need to obtain an API token [here](https://api.slack.com/docs/oauth-test-tokens).
 
 ### Add all the File Attachments to your export.
 
