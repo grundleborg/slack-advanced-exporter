@@ -15,3 +15,14 @@ type SlackPost struct {
 	Ts      string     `json:"ts"`
 	File    *SlackFile `json:"file"`
 }
+
+// As it appears in users.json and /api/users.list.
+// There're obviously many more fields, but we only need a couple of them.
+type SlackUser struct {
+	Id      string           `json:"id"`
+	Profile SlackUserProfile `json:"profile"`
+}
+
+type SlackUserProfile struct {
+	Email string `json:"email"`
+}
