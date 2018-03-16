@@ -15,6 +15,9 @@ This tool can supplement an official Slack team export by adding the following t
 Installation
 ------------
 
+    brew tap grundleborg/slack-advanced-exporter https://github.com/grundleborg/slack-advanced-exporter.git
+    brew install slack-advanced-exporter
+
 Release binaries can be downloaded from release tags on Github
 [here](https://github.com/grundleborg/slack-advanced-exporter/releases).
 
