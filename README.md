@@ -18,6 +18,13 @@ Installation
 Release binaries can be downloaded from release tags on Github
 [here](https://github.com/grundleborg/slack-advanced-exporter/releases).
 
+Homebrew users can do
+
+```bash
+brew tap grundleborg/slack-advanced-exporter
+brew install slack-advanced-exporter
+```
+
 Usage
 -----
 
