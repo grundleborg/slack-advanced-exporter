@@ -8,12 +8,13 @@ type SlackFile struct {
 }
 
 type SlackPost struct {
-	User    string     `json:"user"`
-	Type    string     `json:"type"`
-	Subtype string     `json:"subtype"`
-	Text    string     `json:"text"`
-	Ts      string     `json:"ts"`
-	File    *SlackFile `json:"file"`
+	User    string       `json:"user"`
+	Type    string       `json:"type"`
+	Subtype string       `json:"subtype"`
+	Text    string       `json:"text"`
+	Ts      string       `json:"ts"`
+	File    *SlackFile   `json:"file"`
+	Files   []*SlackFile `json:"files"`
 }
 
 // As it appears in users.json and /api/users.list.
