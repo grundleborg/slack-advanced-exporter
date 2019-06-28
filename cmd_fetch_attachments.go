@@ -102,57 +102,66 @@ func processChannelFile(w *zip.Writer, file *zip.File, inBuf []byte) error {
 
 	// Loop through all the posts.
 	for _, post := range posts {
-		// We only care about file_share posts.
-		if post.Subtype != "file_share" {
+		// Support for legacy file_share posts.
+		if post.Subtype == "file_share" {
+			// Check there's a File property.
+			if post.File == nil {
+				log.Print("++++++ file_share post has no File property: " + post.Ts + "\n")
+				continue
+			}
+
+			// Add the file as a single item in the array of the post's files.
+			post.Files = []*SlackFile{post.File}
+		}
+
+		// If the post doesn't contain any files, move on.
+		if post.Files == nil {
 			continue
 		}
 
-		// Check there's a File property.
-		if post.File == nil {
-			log.Print("++++++ file_share post has no File property: " + post.Ts + "\n")
-			continue
+		// Loop through all the files.
+		for _, file := range post.Files {
+			// Check there's an Id, Name and either UrlPrivateDownload or UrlPrivate property.
+			if len(file.Id) < 1 || len(file.Name) < 1 || !(len(file.UrlPrivate) > 0 || len(file.UrlPrivateDownload) > 0) {
+				log.Print("++++++ file_share post has missing properties on it's File object: " + post.Ts + "\n")
+				continue
+			}
+
+			// Figure out the download URL to use.
+			var downloadUrl string
+			if len(file.UrlPrivateDownload) > 0 {
+				downloadUrl = file.UrlPrivateDownload
+			} else {
+				downloadUrl = file.UrlPrivate
+			}
+
+			// Build the output file path.
+			outputPath := "__uploads/" + file.Id + "/" + file.Name
+
+			// Create the file in the zip output file.
+			outFile, err := w.Create(outputPath)
+			if err != nil {
+				log.Print("++++++ Failed to create output file in output archive: " + outputPath + "\n\n" + err.Error() + "\n")
+				continue
+			}
+
+			// Fetch the file.
+			response, err := http.Get(downloadUrl)
+			if err != nil {
+				log.Print("++++++ Failed to donwload the file: " + downloadUrl)
+				continue
+			}
+			defer response.Body.Close()
+
+			// Save the file to the output zip file.
+			_, err = io.Copy(outFile, response.Body)
+			if err != nil {
+				log.Print("++++++ Failed to write the downloaded file to the output archive: " + downloadUrl + "\n\n" + err.Error() + "\n")
+			}
+
+			// Success at last.
+			fmt.Printf("Downloaded attachment into output archive: %s.\n", file.Id)
 		}
-
-		// Check there's an Id, Name and either UrlPrivateDownload or UrlPrivate property.
-		if len(post.File.Id) < 1 || len(post.File.Name) < 1 || !(len(post.File.UrlPrivate) > 0 || len(post.File.UrlPrivateDownload) > 0) {
-			log.Print("++++++ file_share post has missing properties on it's File object: " + post.Ts + "\n")
-			continue
-		}
-
-		// Figure out the download URL to use.
-		var downloadUrl string
-		if len(post.File.UrlPrivateDownload) > 0 {
-			downloadUrl = post.File.UrlPrivateDownload
-		} else {
-			downloadUrl = post.File.UrlPrivate
-		}
-
-		// Build the output file path.
-		outputPath := "__uploads/" + post.File.Id + "/" + post.File.Name
-
-		// Create the file in the zip output file.
-		outFile, err := w.Create(outputPath)
-		if err != nil {
-			log.Print("++++++ Failed to create output file in output archive: " + outputPath + "\n\n" + err.Error() + "\n")
-			continue
-		}
-
-		// Fetch the file.
-		response, err := http.Get(downloadUrl)
-		if err != nil {
-			log.Print("++++++ Failed to donwload the file: " + downloadUrl)
-			continue
-		}
-		defer response.Body.Close()
-
-		// Save the file to the output zip file.
-		_, err = io.Copy(outFile, response.Body)
-		if err != nil {
-			log.Print("++++++ Failed to write the downloaded file to the output archive: " + downloadUrl + "\n\n" + err.Error() + "\n")
-		}
-
-		// Success at last.
-		fmt.Printf("Downloaded attachment into output archive: %s.\n", post.File.Id)
 	}
 
 	return nil
