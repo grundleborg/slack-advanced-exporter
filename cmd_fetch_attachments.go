@@ -123,7 +123,7 @@ func processChannelFile(w *zip.Writer, file *zip.File, inBuf []byte) error {
 		for _, file := range post.Files {
 			// Check there's an Id, Name and either UrlPrivateDownload or UrlPrivate property.
 			if len(file.Id) < 1 || len(file.Name) < 1 || !(len(file.UrlPrivate) > 0 || len(file.UrlPrivateDownload) > 0) {
-				log.Print("++++++ file_share post has missing properties on it's File object: " + post.Ts + "\n")
+				log.Print("++++++ file_share post has missing properties on its File object: " + post.Ts + "\n")
 				continue
 			}
 
