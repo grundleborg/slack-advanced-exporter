@@ -13,7 +13,7 @@ import (
 	"strings"
 )
 
-func fetchAttachments(inputArchive string, outputArchive string) error {
+func fetchAttachments(inputArchive string, outputArchive string, slackApiToken string) error {
 
 	// Check the parameters.
 	if len(inputArchive) == 0 {
@@ -75,7 +75,7 @@ func fetchAttachments(inputArchive string, outputArchive string) error {
 		splits := strings.Split(file.Name, "/")
 		if len(splits) == 2 && !strings.HasPrefix(splits[0], "__") && strings.HasSuffix(splits[1], ".json") {
 			// Parse this file.
-			err = processChannelFile(w, file, inBuf)
+			err = processChannelFile(w, file, inBuf, slackApiToken)
 			if err != nil {
 				fmt.Printf("%s", err)
 				os.Exit(1)
@@ -92,7 +92,7 @@ func fetchAttachments(inputArchive string, outputArchive string) error {
 	return nil
 }
 
-func processChannelFile(w *zip.Writer, file *zip.File, inBuf []byte) error {
+func processChannelFile(w *zip.Writer, file *zip.File, inBuf []byte, token string) error {
 
 	// Parse the JSON of the file.
 	var posts []SlackPost
@@ -118,6 +118,8 @@ func processChannelFile(w *zip.Writer, file *zip.File, inBuf []byte) error {
 		if post.Files == nil {
 			continue
 		}
+
+		client := &http.Client{}
 
 		// Loop through all the files.
 		for _, file := range post.Files {
@@ -146,9 +148,17 @@ func processChannelFile(w *zip.Writer, file *zip.File, inBuf []byte) error {
 			}
 
 			// Fetch the file.
-			response, err := http.Get(downloadUrl)
+			req, err := http.NewRequest("GET", downloadUrl, nil)
 			if err != nil {
-				log.Print("++++++ Failed to donwload the file: " + downloadUrl)
+				log.Print("++++++ Failed to create file download request: " + downloadUrl)
+				continue
+			}
+			if (token != "") {
+				req.Header.Add("Authorization", "Bearer " + token)
+			}
+			response, err := client.Do(req)
+			if err != nil {
+				log.Print("++++++ Failed to download the file: " + downloadUrl)
 				continue
 			}
 			defer response.Body.Close()

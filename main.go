@@ -38,7 +38,14 @@ func main() {
 			Aliases: []string{"a"},
 			Usage:   "Fetch all file attachments and add them to the output archive.",
 			Action: func(c *cli.Context) error {
-				return fetchAttachments(inputArchive, outputArchive)
+				return fetchAttachments(inputArchive, outputArchive, slackApiToken)
+			},
+			Flags: []cli.Flag{
+				cli.StringFlag{
+					Name:        "api-token",
+					Usage:       "Slack API token. Can be obtained here: https://api.slack.com/docs/oauth-test-tokens",
+					Destination: &slackApiToken,
+				},
 			},
 		},
 		{
