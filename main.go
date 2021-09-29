@@ -11,7 +11,7 @@ func main() {
 
 	app.Name = "Slack Advanced Exporter"
 	app.Usage = "A tool to augment official Slack data exports with additional data that Slack does not include by default."
-	app.Version = "0.2.0"
+	app.Version = "0.3.1"
 
 	var inputArchive string
 	var outputArchive string
