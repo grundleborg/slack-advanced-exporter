@@ -41,6 +41,9 @@ use this command:
 
     ./slack-advanced-exporter --input-archive your-slack-team-export.zip --output-archive export-with-attachments.zip fetch-attachments
 
+You may need an API token to access some attachments. You can add `--api-token xoxp-123...`
+to this command if so, in the same way as for `fetch-emails`.
+
 Problems
 --------
 
