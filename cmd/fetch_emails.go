@@ -1,4 +1,4 @@
-package main
+package cmd
 
 import (
 	"archive/zip"
@@ -9,23 +9,26 @@ import (
 	"log"
 	"net/http"
 	"os"
+
+	"github.com/spf13/cobra"
 )
 
-func fetchEmails(inputArchive string, outputArchive string, slackApiToken string) error {
-	// Check the parameters.
-	if len(inputArchive) == 0 {
-		fmt.Printf("fetch-emails command requires --input-archive to be specified.\n")
-		os.Exit(1)
-	}
-	if len(outputArchive) == 0 {
-		fmt.Printf("fetch-emails command requires --output-archive to be specified.\n")
-		os.Exit(1)
-	}
-	if slackApiToken == "" {
-		fmt.Printf("fetch-emails command requires --api-token to be specified.\n")
-		os.Exit(1)
-	}
+var (
+	emailsApiToken string
+)
 
+var fetchEmailsCmd = &cobra.Command{
+	Use:   "fetch-emails",
+	Short: "Fetch all file attachments and add them to the output archive",
+	RunE:  fetchEmails,
+}
+
+func init() {
+	fetchEmailsCmd.PersistentFlags().StringVar(&emailsApiToken, "api-token", "", "Slack API token. Can be obtained here: https://api.slack.com/docs/oauth-test-tokens")
+	fetchEmailsCmd.MarkPersistentFlagRequired("api-token")
+}
+
+func fetchEmails(cmd *cobra.Command, args []string) error {
 	// Open the input archive.
 	r, err := zip.OpenReader(inputArchive)
 	if err != nil {
@@ -64,7 +67,7 @@ func fetchEmails(inputArchive string, outputArchive string, slackApiToken string
 		}
 
 		if file.Name == "users.json" {
-			err = processUsersJson(outFile, inReader, slackApiToken)
+			err = processUsersJson(outFile, inReader, emailsApiToken)
 			if err != nil {
 				fmt.Printf("Failed to fetch users' emails.\n\n%s", err)
 				os.Exit(1)

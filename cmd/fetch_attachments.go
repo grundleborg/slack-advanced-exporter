@@ -1,4 +1,4 @@
-package main
+package cmd
 
 import (
 	"archive/zip"
@@ -11,20 +11,25 @@ import (
 	"net/http"
 	"os"
 	"strings"
+
+	"github.com/spf13/cobra"
 )
 
-func fetchAttachments(inputArchive string, outputArchive string, slackApiToken string) error {
+var (
+	attachmentsApiToken string
+)
 
-	// Check the parameters.
-	if len(inputArchive) == 0 {
-		fmt.Printf("fetch-attachments command requires --input-archive to be specified.\n")
-		os.Exit(1)
-	}
-	if len(outputArchive) == 0 {
-		fmt.Printf("fetch-attachments command requires --output-archive to be specified.\n")
-		os.Exit(1)
-	}
+var fetchAttachmentsCmd = &cobra.Command{
+	Use:   "fetch-attachments",
+	Short: "Fetch all file attachments and add them to the output archive",
+	RunE:  fetchAttachments,
+}
 
+func init() {
+	fetchAttachmentsCmd.PersistentFlags().StringVar(&attachmentsApiToken, "api-token", "", "Slack API token. Can be obtained here: https://api.slack.com/docs/oauth-test-tokens")
+}
+
+func fetchAttachments(cmd *cobra.Command, args []string) error {
 	// Open the input archive.
 	r, err := zip.OpenReader(inputArchive)
 	if err != nil {
@@ -75,7 +80,7 @@ func fetchAttachments(inputArchive string, outputArchive string, slackApiToken s
 		splits := strings.Split(file.Name, "/")
 		if len(splits) == 2 && !strings.HasPrefix(splits[0], "__") && strings.HasSuffix(splits[1], ".json") {
 			// Parse this file.
-			err = processChannelFile(w, file, inBuf, slackApiToken)
+			err = processChannelFile(w, file, inBuf, attachmentsApiToken)
 			if err != nil {
 				fmt.Printf("%s", err)
 				os.Exit(1)
@@ -153,8 +158,8 @@ func processChannelFile(w *zip.Writer, file *zip.File, inBuf []byte, token strin
 				log.Print("++++++ Failed to create file download request: " + downloadUrl)
 				continue
 			}
-			if (token != "") {
-				req.Header.Add("Authorization", "Bearer " + token)
+			if token != "" {
+				req.Header.Add("Authorization", "Bearer "+token)
 			}
 			response, err := client.Do(req)
 			if err != nil {
