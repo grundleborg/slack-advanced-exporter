@@ -51,6 +51,7 @@ func fetchAttachments(cmd *cobra.Command, args []string) error {
 
 	// Run through all the files in the input archive.
 	for _, file := range r.File {
+		verbosePrintln(fmt.Sprintf("Processing file: %s\n", file.Name))
 
 		// Open the file from the input archive.
 		inReader, err := file.Open()
@@ -98,6 +99,7 @@ func fetchAttachments(cmd *cobra.Command, args []string) error {
 }
 
 func processChannelFile(w *zip.Writer, file *zip.File, inBuf []byte, token string) error {
+	verbosePrintln("This is a 'channels' file. Examining it's contents for attachments.")
 
 	// Parse the JSON of the file.
 	var posts []SlackPost
@@ -151,6 +153,8 @@ func processChannelFile(w *zip.Writer, file *zip.File, inBuf []byte, token strin
 				log.Print("++++++ Failed to create output file in output archive: " + outputPath + "\n\n" + err.Error() + "\n")
 				continue
 			}
+
+			verbosePrintln(fmt.Sprintf("Downloading file %s (%s)", file.Id, file.Name))
 
 			// Fetch the file.
 			req, err := http.NewRequest("GET", downloadUrl, nil)

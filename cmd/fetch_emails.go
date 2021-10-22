@@ -50,6 +50,8 @@ func fetchEmails(cmd *cobra.Command, args []string) error {
 
 	// Run through all the files in the input archive.
 	for _, file := range r.File {
+		verbosePrintln(fmt.Sprintf("Processing file: %s\n", file.Name))
+
 		// Open the file from the input archive.
 		inReader, err := file.Open()
 		if err != nil {
@@ -91,6 +93,8 @@ func fetchEmails(cmd *cobra.Command, args []string) error {
 }
 
 func processUsersJson(output io.Writer, input io.Reader, slackApiToken string) error {
+	verbosePrintln("Found users.json file.")
+
 	// We want to preserve all existing fields in JSON.
 	// By using interface{} (instead of struct), we can avoid describing all
 	// the fields (new ones might be added by Slack devs in the future!) at the cost of
@@ -109,6 +113,8 @@ func processUsersJson(output io.Writer, input io.Reader, slackApiToken string) e
 	if len(data) == 0 {
 		return errors.New("Failed to find any users in users.json. Looks like something went wrong.")
 	}
+
+	verbosePrintln("Updating users.json contents with fetched emails.")
 
 	for _, user := range data {
 		// These 'ok's only check for type assertion success.
@@ -136,6 +142,8 @@ func processUsersJson(output io.Writer, input io.Reader, slackApiToken string) e
 }
 
 func fetchUserEmails(token string) (map[string]string, error) {
+	verbosePrintln("Fetching emails from Slack API")
+
 	client := &http.Client{}
 	req, err := http.NewRequest("GET", "https://slack.com/api/users.list", nil)
 	if err != nil {
@@ -170,6 +178,8 @@ func fetchUserEmails(token string) (map[string]string, error) {
 	if !data.Ok {
 		return nil, errors.New("Unexpected lack of ok=true in Slack API response. Is access token correct?")
 	}
+
+	verbosePrintln("Fetched emails from Slack API. Now building a map of them to process.")
 
 	res := make(map[string]string)
 	for _, user := range data.Members {
