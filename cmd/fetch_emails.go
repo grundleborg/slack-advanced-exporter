@@ -145,48 +145,66 @@ func fetchUserEmails(token string) (map[string]string, error) {
 	verbosePrintln("Fetching emails from Slack API")
 
 	client := &http.Client{}
-	req, err := http.NewRequest("GET", "https://slack.com/api/users.list", nil)
-	if err != nil {
-		return nil, fmt.Errorf("Got error %s when building the request", err.Error())
-	}
-
-	req.Header.Set("Authorization", "Bearer "+token)
-	resp, err := client.Do(req)
-
-	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("Slack API returned HTTP code %d", resp.StatusCode)
-	}
-
-	// Here SlackUser struct is used instead of interface{}.
-	// It has very few fields defined, but the decoder will simply
-	// ignore extra fields, and we only need a couple of them.
-	var data struct {
-		Ok      bool        `json:"ok"`
-		Members []SlackUser `json:"members"`
-	}
-
-	err = json.NewDecoder(resp.Body).Decode(&data)
-	if err != nil {
-		return nil, err
-	}
-
-	if !data.Ok {
-		return nil, errors.New("Unexpected lack of ok=true in Slack API response. Is access token correct?")
-	}
-
-	verbosePrintln("Fetched emails from Slack API. Now building a map of them to process.")
-
 	res := make(map[string]string)
-	for _, user := range data.Members {
-		if user.Id != "" && user.Profile.Email != "" {
-			res[user.Id] = user.Profile.Email
+	url := "https://slack.com/api/users.list"
+
+	cursor := ""
+
+	for {
+		req, err := http.NewRequest("GET", url, nil)
+		if err != nil {
+			return nil, fmt.Errorf("got error %s when building the request", err)
+		}
+
+		query := req.URL.Query()
+		query.Add("limit", "1000")
+		if cursor != "" {
+			query.Add("cursor", cursor)
+		}
+		req.URL.RawQuery = query.Encode()
+
+		req.Header.Set("Authorization", "Bearer "+token)
+		resp, err := client.Do(req)
+		if err != nil {
+			return nil, err
+		}
+		defer resp.Body.Close()
+
+		if resp.StatusCode != http.StatusOK {
+			return nil, fmt.Errorf("Slack API returned HTTP code %d", resp.StatusCode)
+		}
+
+		var data struct {
+			Ok               bool        `json:"ok"`
+			Members          []SlackUser `json:"members"`
+			ResponseMetadata struct {
+				NextCursor string `json:"next_cursor"`
+			} `json:"response_metadata"`
+		}
+
+		err = json.NewDecoder(resp.Body).Decode(&data)
+		if err != nil {
+			return nil, err
+		}
+
+		if !data.Ok {
+			return nil, errors.New("unexpected lack of ok=true in Slack API response. Is access token correct?")
+		}
+
+		for _, user := range data.Members {
+			if user.Id != "" && user.Profile.Email != "" {
+				res[user.Id] = user.Profile.Email
+			}
+		}
+
+		cursor = data.ResponseMetadata.NextCursor
+		verbosePrintln("Processed a batch of users.")
+
+		if cursor == "" {
+			break // Exit the loop if there's no next cursor
 		}
 	}
 
+	verbosePrintln("Fetched all emails from Slack API.")
 	return res, nil
 }
