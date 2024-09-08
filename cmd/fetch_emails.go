@@ -19,7 +19,7 @@ var (
 
 var fetchEmailsCmd = &cobra.Command{
 	Use:   "fetch-emails",
-	Short: "Fetch all file attachments and add them to the output archive",
+	Short: "Fetch email addresses and add them to the corresponding user profiles",
 	RunE:  fetchEmails,
 }
 
