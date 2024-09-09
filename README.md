@@ -10,6 +10,7 @@ Current Features
 This tool can supplement an official Slack team export by adding the following to it:
 
 * Users' e-mail addresses
+* Private Channels
 * File Uploads
 
 Installation
@@ -34,15 +35,25 @@ user this command:
 
 You'll need to obtain an API token [here](https://api.slack.com/docs/oauth-test-tokens).
 
+### Add Private Channels to your export
+
+You can fetch all the private channels you have access to yourself, assuming you use an API token with scopes `groups:read` and `groups:history`. To do so, run this command:
+
+    ./slack-advanced-exporter --input-archive your-slack-team-export.zip --output-archive export-with-private-channels.zip fetch-private-channels --api-token xoxp-123...
+
+Obtain a token as above.
+ 
 ### Add all the File Attachments to your export.
 
-To fetch all the file attachments referenced in your Slack team export andd add them to the archive,
+To fetch all the file attachments referenced in your Slack team export and add them to the archive,
 use this command:
 
     ./slack-advanced-exporter --input-archive your-slack-team-export.zip --output-archive export-with-attachments.zip fetch-attachments
 
 You may need an API token to access some attachments. You can add `--api-token xoxp-123...`
 to this command if so, in the same way as for `fetch-emails`.
+
+
 
 Problems
 --------

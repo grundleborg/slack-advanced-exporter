@@ -27,6 +27,7 @@ func init() {
 	rootCmd.MarkPersistentFlagRequired("output-archive")
 	rootCmd.AddCommand(fetchAttachmentsCmd)
 	rootCmd.AddCommand(fetchEmailsCmd)
+	rootCmd.AddCommand(fetchPrivateChannelsCmd)
 }
 
 func Execute() error {
