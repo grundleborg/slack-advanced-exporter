@@ -99,7 +99,7 @@ func fetchAttachments(cmd *cobra.Command, args []string) error {
 }
 
 func processChannelFile(w *zip.Writer, file *zip.File, inBuf []byte, token string) error {
-	verbosePrintln("This is a 'channels' file. Examining it's contents for attachments.")
+	verbosePrintln("This is a 'channels' file. Examining its contents for attachments.")
 
 	// Parse the JSON of the file.
 	var posts []SlackPost
