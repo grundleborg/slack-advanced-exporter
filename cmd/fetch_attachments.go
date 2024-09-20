@@ -126,8 +126,6 @@ func processChannelFile(w *zip.Writer, file *zip.File, inBuf []byte, token strin
 			continue
 		}
 
-		client := &http.Client{}
-
 		// Loop through all the files.
 		for _, file := range post.Files {
 			// Check there's an Id, Name and either UrlPrivateDownload or UrlPrivate property.
@@ -165,7 +163,7 @@ func processChannelFile(w *zip.Writer, file *zip.File, inBuf []byte, token strin
 			if token != "" {
 				req.Header.Add("Authorization", "Bearer "+token)
 			}
-			response, err := client.Do(req)
+			response, err := httpClient.Do(req)
 			if err != nil {
 				log.Print("++++++ Failed to download the file: " + downloadUrl)
 				continue

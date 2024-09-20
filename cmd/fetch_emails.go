@@ -144,14 +144,13 @@ func processUsersJson(output io.Writer, input io.Reader, slackApiToken string) e
 func fetchUserEmails(token string) (map[string]string, error) {
 	verbosePrintln("Fetching emails from Slack API")
 
-	client := &http.Client{}
 	req, err := http.NewRequest("GET", "https://slack.com/api/users.list", nil)
 	if err != nil {
 		return nil, fmt.Errorf("Got error %s when building the request", err.Error())
 	}
 
 	req.Header.Set("Authorization", "Bearer "+token)
-	resp, err := client.Do(req)
+	resp, err := httpClient.Do(req)
 
 	if err != nil {
 		return nil, err
