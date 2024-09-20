@@ -1,6 +1,9 @@
 package cmd
 
 import (
+	"net/http"
+
+	"github.com/hashicorp/go-retryablehttp"
 	"github.com/spf13/cobra"
 )
 
@@ -8,6 +11,7 @@ var (
 	inputArchive  string
 	outputArchive string
 	verbose       bool
+	httpClient    *http.Client
 )
 
 var rootCmd = &cobra.Command{
@@ -27,6 +31,10 @@ func init() {
 	rootCmd.MarkPersistentFlagRequired("output-archive")
 	rootCmd.AddCommand(fetchAttachmentsCmd)
 	rootCmd.AddCommand(fetchEmailsCmd)
+	retryClient := retryablehttp.NewClient()
+	retryClient.RetryMax = 10
+	httpClient = retryClient.StandardClient() // *http.Client
+
 }
 
 func Execute() error {
